@@ -42,16 +42,16 @@ module.exports = {
 		hotOnly: false,
 		open: true //配置自动启动浏览器
 		//一个代理
-		//proxy: 'http://127.0.0.1:3000'
+		// proxy: 'http://127.0.0.1:3000'
 		// 多个代理
 		// proxy: {
-		//   "/api": {
-		//     target: "http://127.0.0.1:1010",
-		//     changeOrigin: true
-		//   },
-		//   "/foo": {
-		//     target: "http://127.0.0.1:1009"
-		//   }
+		// 	"/api": {
+		// 		target: "http://127.0.0.1:1010",
+		// 		changeOrigin: true
+		// 	},
+		// 	"/graphql": {
+		// 		target: "http://wsl.local:8090"
+		// 	}
 		// }
 	},
 	// 通过 webpack-merge 合并到最终的配置中

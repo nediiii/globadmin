@@ -10,7 +10,7 @@ import "view-design/dist/styles/iview.css";
 Vue.use(ViewUI, { transfer: true });
 //设置为 false 以阻止 vue 在启动时生成生产提示
 Vue.config.productionTip = false;
-console.log(process.env);
+// console.log(process.env);
 
 Vue.use(VueRouter);
 // 路由配置
@@ -51,6 +51,7 @@ import ApolloClient from "apollo-boost";
 import VueApollo from "vue-apollo";
 
 Vue.use(VueApollo);
+console.log(process.env.VUE_APP_BACKEND_GRAPHQL_ENDPOINT);
 const apolloClient = new ApolloClient({
 	// 你需要在这里使用绝对路径
 	uri: process.env.VUE_APP_BACKEND_GRAPHQL_ENDPOINT

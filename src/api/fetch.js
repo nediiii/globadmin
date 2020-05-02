@@ -11,7 +11,7 @@ fetch.interceptors.request.use(
 	function(config) {
 		ViewUI.LoadingBar.start();
 		//在请求发出之前进行一些操作
-		console.log("send");
+		// console.log("send");
 		if (config.url.indexOf("/api/login") == -1) {
 			config.headers.Authorization = "Bearer " + Util.getItem("bearer"); //Bearer
 		}
@@ -27,7 +27,7 @@ fetch.interceptors.response.use(
 	function(res) {
 		ViewUI.LoadingBar.finish();
 		//在这里对返回的数据进行处理
-		console.log("recv");
+		// console.log("recv");
 		if (res.data.code == 330) {
 			// ViewUI.Notice.error({
 			// 	duration: 3,
@@ -35,7 +35,7 @@ fetch.interceptors.response.use(
 			// 	desc: "对不起你没有权限访问"
 			// });
 			// return new Promise(() => {});
-			location.href = "/#/401";//没有权限
+			location.href = "/#/401"; //没有权限
 		}
 		if (res.data.code == 340) {
 			// ViewUI.Notice.error({
@@ -50,7 +50,7 @@ fetch.interceptors.response.use(
 			// });
 			// return new Promise(() => {});
 			Util.clearData();
-			location.href = "/#/jwt";//需要重新登陆
+			location.href = "/#/jwt"; //需要重新登陆
 		}
 		if (res.data.code == 350) {
 			// ViewUI.Notice.error({
@@ -59,7 +59,7 @@ fetch.interceptors.response.use(
 			// 	desc: "服务端发生错误,请重试"
 			// });
 			// return new Promise(() => {});
-			location.href = "/#/50x";//服务器异常
+			location.href = "/#/50x"; //服务器异常
 		}
 		return res.data;
 	},
