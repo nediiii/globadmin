@@ -46,22 +46,10 @@ router.afterEach(to => {
 	window.scrollTo(0, 0);
 });
 
-// gql
-import ApolloClient from "apollo-boost";
-import VueApollo from "vue-apollo";
-
-Vue.use(VueApollo);
-console.log(process.env.VUE_APP_BACKEND_GRAPHQL_ENDPOINT);
-const apolloClient = new ApolloClient({
-	// 你需要在这里使用绝对路径
-	uri: process.env.VUE_APP_BACKEND_GRAPHQL_ENDPOINT
-});
-const apolloProvider = new VueApollo({
-	defaultClient: apolloClient
-});
+import { createProvider } from "./vue-apollo";
 
 new Vue({
 	router,
-	apolloProvider,
+	apolloProvider: createProvider(),
 	render: h => h(App)
 }).$mount("#app");

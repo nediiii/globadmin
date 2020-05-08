@@ -1,0 +1,11 @@
+query Query{
+  PostList{
+    id
+    status
+    title
+    slug
+    html
+    markdown
+    update_at
+  }
+}

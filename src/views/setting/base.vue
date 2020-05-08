@@ -4,7 +4,7 @@
 		<div style="max-width:600px">
 			<Form ref="base" :model="base" label-position="top" :rules="base">
 				<FormItem label="站点名称" prop="title">
-					<Input v-model="base.title" search enter-button="确    定" @on-search="cmtSave('title')"></Input>
+					<Input v-model="base.title" search enter-button="确    定" @on-search="cmtSave('title')" />
 				</FormItem>
 				<FormItem label="Logo" prop="logo_url">
 					<Input
@@ -58,11 +58,6 @@
 				</FormItem>
 			</Form>
 		</div>
-		<Drawer title="编辑图片" placement="right" v-model="showLogoEdit">
-			<p>Some contents...</p>
-			<p>Some contents...</p>
-			<p>Some contents...</p>
-		</Drawer>
 	</Card>
 </template>
 
@@ -136,36 +131,6 @@ export default {
 	},
 	mounted() {
 		this.init();
-		this.$apollo
-			.query({
-				query: gql`
-					query {
-						Role {
-							name
-						}
-					}
-				`
-			})
-			.then(data => {
-				console.log("gql", data);
-			});
-	},
-	apollo: {
-		Role: gql`
-			{
-				Role {
-					name
-				}
-			}
-		`,
-		Setting: gql`
-			{
-				Setting {
-					key
-					value
-				}
-			}
-		`
 	}
 };
 </script>
