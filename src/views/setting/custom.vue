@@ -1,28 +1,38 @@
-
 <template>
 	<Card dis-hover>
-		<p slot="title">
-			<Icon type="ios-code-working" />自定义设置
-		</p>
+		<p slot="title"><Icon type="ios-code-working" />自定义设置</p>
+		<p><button @click="uploadMultipleWithPayload">测试</button></p>
 		<div>
 			<Form label-position="top">
 				<FormItem label="自定义代码">
-					<Input v-model="model.value" style="width:600px" type="textarea" :autosize="{minRows: 15,maxRows: 20}" placeholder="Enter code "></Input>
+					<Input
+						v-model="model.value"
+						style="width:600px"
+						type="textarea"
+						:autosize="{ minRows: 15, maxRows: 20 }"
+						placeholder="Enter code "
+					/>
 				</FormItem>
 				<div>
-					<Button type="warning" :loading="saveLoading" @click="cmtSave">保&nbsp;&nbsp;&nbsp;&nbsp;存</Button>
+					<Button type="warning" :loading="saveLoading" @click="cmtSave">
+						保&nbsp;&nbsp;&nbsp;&nbsp;存
+					</Button>
 				</div>
 			</Form>
 		</div>
 	</Card>
 </template>
+
 <script>
 import { apiOptsGet, admOptsEdit } from "@/api/opts";
+import gql from "graphql-tag";
+
 export default {
 	data() {
 		return {
 			model: { key: "custom_js", value: "" },
-			saveLoading: false
+			saveLoading: false,
+			allRoles: {}
 		};
 	},
 	methods: {
@@ -51,10 +61,103 @@ export default {
 					this.model.value = "";
 				}
 			});
+		},
+		upload() {
+			this.$apollo.mutate({
+				mutation: gql`
+					mutation($file: Upload!) {
+						singleUpload(file: $file) {
+							id
+							name
+							content
+						}
+					}
+				`,
+				// ...
+				context: {
+					hasUpload: true // Important!
+				},
+				variables: {
+					file: new File(["123"], "testfile.txt", { type: "text/plain" })
+				}
+			});
+		},
+		uploadWithPayload() {
+			this.$apollo.mutate({
+				mutation: gql`
+					mutation($req: UploadFile!) {
+						singleUploadWithPayload(req: $req) {
+							id
+							name
+							content
+						}
+					}
+				`,
+				variables: {
+					req: {
+						id: 22,
+						file: new File(["123"], "testfile.txt", { type: "text/plain" })
+					}
+				}
+			});
+		},
+		uploadMultiple() {
+			this.$apollo.mutate({
+				mutation: gql`
+					mutation($files: [Upload!]!) {
+						multipleUpload(files: $files) {
+							id
+							name
+							content
+						}
+					}
+				`,
+				variables: {
+					files: [
+						new File(["123"], "testfile.txt", { type: "text/plain" }),
+						new File(["456"], "testfile.txt", { type: "text/plain" }),
+						new File(["789"], "testfile.txt", { type: "text/plain" })
+					]
+				}
+			});
+		},
+		uploadMultipleWithPayload() {
+			this.$apollo.mutate({
+				mutation: gql`
+					mutation($req: [UploadFile!]!) {
+						multipleUploadWithPayload(req: $req) {
+							id
+							name
+							content
+						}
+					}
+				`,
+				variables: {
+					req: [
+						{ id: 1, file: new File(["a"], "testfileg.txt", { type: "text/plain" }) },
+						{ id: 2, file: new File(["b"], "testfileh.txt", { type: "text/plain" }) },
+						{ id: 3, file: new File(["c"], "testfilej.txt", { type: "text/plain" }) },
+						{ id: 4, file: new File(["d"], "testfilek.txt", { type: "text/plain" }) }
+					]
+				}
+			});
 		}
 	},
 	mounted() {
 		this.init();
+	},
+	apollo: {
+		allRoles: {
+			query: gql`
+				query {
+					allRoles {
+						roles {
+							id
+						}
+					}
+				}
+			`
+		}
 	}
 };
 </script>

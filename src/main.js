@@ -46,10 +46,34 @@ router.afterEach(to => {
 	window.scrollTo(0, 0);
 });
 
-import { createProvider } from "./vue-apollo";
+// apollo
+import VueApollo from "vue-apollo";
+Vue.use(VueApollo);
+import { ApolloClient } from "apollo-client";
+import { InMemoryCache } from "apollo-cache-inmemory";
+import { createUploadLink } from "apollo-upload-client";
+
+// HTTP connection to the API
+
+const httpOptions = {
+	uri: process.env.VUE_APP_GRAPHQL_HTTP || "/query"
+};
+
+// Cache implementation
+const cache = new InMemoryCache();
+
+// Create the apollo client
+const apolloClient = new ApolloClient({
+	link: createUploadLink(httpOptions),
+	cache
+});
+
+const apolloProvider = new VueApollo({
+	defaultClient: apolloClient
+});
 
 new Vue({
 	router,
-	apolloProvider: createProvider(),
+	apolloProvider,
 	render: h => h(App)
 }).$mount("#app");
