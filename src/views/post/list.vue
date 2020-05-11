@@ -3,7 +3,7 @@
 		<Form inline>
 			<FormItem>
 				<Select v-model="selectTag" placeholder="请选择文章类别" style="width:200px">
-					<Option v-for="tag in TagList.tags" :value="tag.id" :key="tag.id">
+					<Option v-for="tag in allTags.tags" :value="tag.id" :key="tag.id">
 						{{ tag.name }} [{{ tag.description }}]
 					</Option>
 				</Select>
@@ -16,8 +16,8 @@
 		<br />
 		<Page
 			:total="total"
-			:current="current_page"
-			:page-size="per_page"
+			:current="currentPage"
+			:page-size="perPage"
 			:page-size-opts="[10, 12, 15, 20, 30]"
 			@on-change="onChange"
 			@on-page-size-change="onPageSizeChange"
@@ -32,8 +32,8 @@ import gql from "graphql-tag";
 export default {
 	data() {
 		return {
-			current_page: 1,
-			per_page: 6,
+			currentPage: 1,
+			perPage: 6,
 			total: 0,
 			posts: [],
 			selectTag: 0,
@@ -75,7 +75,7 @@ export default {
 					title: "上次修改日期",
 					width: 150,
 					render: (h, data) => {
-						return h("div", data.row.update_at.replace(/T|\+08:00/g, " ").substr(0, 16));
+						return h("div", new Date(data.row.updateAt * 1000).toLocaleString().substr(0, 18));
 					}
 				},
 				{
@@ -130,30 +130,29 @@ export default {
 					}
 				}
 			],
-			PostList: {
-				posts: [],
-				page_info: {
-					has_previous_page: false,
-					has_next_page: true,
-					total: 10,
-					last_page: 1,
-					current_page: 1,
-					per_page: 5
-				}
+			allPosts: {
+				// posts: [],
+				// pageInfo: {
+				// 	has_previous_page: false,
+				// 	has_next_page: true,
+				// 	total: 10,
+				// 	last_page: 1,
+				// 	current_page: 1,
+				// 	perPage: 5
+				// }
 			},
-			TagList: {
+			allTags: {
 				tags: [],
 				page_info: {}
 			}
 		};
 	},
 	methods: {
-		onChange(current_page) {
-			// console.log("page change");
-			this.current_page = current_page;
+		onChange(currentPage) {
+			this.currentPage = currentPage;
 		},
-		onPageSizeChange(per_page) {
-			this.per_page = per_page;
+		onPageSizeChange(perPage) {
+			this.perPage = perPage;
 		},
 		tagFilter() {
 			console.log(this.selectTag);
@@ -164,7 +163,7 @@ export default {
 				.mutate({
 					mutation: gql`
 						mutation($id: ID!) {
-							DeletePost(id: $id)
+							deletePost(id: $id)
 						}
 					`,
 					variables: {
@@ -172,13 +171,18 @@ export default {
 					}
 				})
 				.then(result => {
-					if (result.data.DeletePost) {
-						console.log("删除成功");
+					if (result.data.deletePost) {
 						this.$Message.success({
 							content: "删除成功",
 							onClose: () => {
-								// this.PostList.posts.splice(data.index, 1);
-								this.$apollo.queries.PostList.refetch();
+								this.$apollo.queries.allPosts.refetch();
+							}
+						});
+					} else {
+						this.$Message.error({
+							content: "删除异常",
+							onClose: () => {
+								this.$apollo.queries.allPosts.refetch();
 							}
 						});
 					}
@@ -186,63 +190,59 @@ export default {
 		}
 	},
 	apollo: {
-		PostList: {
+		allPosts: {
 			query: gql`
-				query($page: Int, $per_page: Int) {
-					PostList(PageInfo: { page: $page, per_page: $per_page }) {
+				query($page: Int, $perPage: Int) {
+					allPosts(page: $page, perPage: $perPage) {
+						pageInfo {
+							currentPage
+							perPage
+							hasNextPage
+							hasPreviousPage
+							total
+						}
 						posts {
 							id
+							slug
 							status
 							title
-							slug
 							html
 							markdown
-							update_at
-						}
-						page_info {
-							has_previous_page
-							has_next_page
-							total
-							last_page
-							current_page
-							per_page
+							updateAt
 						}
 					}
 				}
 			`,
 			variables() {
 				return {
-					page: this.current_page,
-					per_page: this.PostList.page_info.per_page
+					page: this.currentPage,
+					perPage: this.perPage
 				};
 			},
 			result({ data, loading, networkStatus }) {
-				this.total = data.PostList.page_info.total;
-				this.per_page = data.PostList.page_info.per_page;
-				this.current_page = data.PostList.page_info.current_page;
-				this.posts = data.PostList.posts;
+				this.total = data.allPosts.pageInfo.total;
+				this.perPage = data.allPosts.pageInfo.perPage;
+				this.currentPage = data.allPosts.pageInfo.currentPage;
+				this.posts = data.allPosts.posts;
 			}
 		},
-		TagList: {
+		allTags: {
 			query: gql`
-				query {
-					TagList {
+				query($perPage: Int) {
+					allTags(perPage: $perPage) {
 						tags {
 							id
 							name
 							description
 						}
-						page_info {
-							has_previous_page
-							has_next_page
-							total
-							last_page
-							current_page
-							per_page
-						}
 					}
 				}
-			`
+			`,
+			variables() {
+				return {
+					perPage: 10
+				};
+			}
 		}
 	}
 };

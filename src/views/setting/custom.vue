@@ -1,7 +1,7 @@
 <template>
 	<Card dis-hover>
-		<p slot="title"><Icon type="ios-code-working" />自定义设置</p>
-		<p><button @click="uploadMultipleWithPayload">测试</button></p>
+		<!-- <p slot="title"><Icon type="ios-code-working" />自定义设置</p>
+		<p><button @click="upload">测试</button></p>
 		<div>
 			<Form label-position="top">
 				<FormItem label="自定义代码">
@@ -19,7 +19,8 @@
 					</Button>
 				</div>
 			</Form>
-		</div>
+		</div> -->
+		<div v-html="post.html"></div>
 	</Card>
 </template>
 
@@ -32,7 +33,8 @@ export default {
 		return {
 			model: { key: "custom_js", value: "" },
 			saveLoading: false,
-			allRoles: {}
+			allRoles: {},
+			post: {}
 		};
 	},
 	methods: {
@@ -67,6 +69,8 @@ export default {
 				mutation: gql`
 					mutation($file: Upload!) {
 						singleUpload(file: $file) {
+							hash
+							url
 							id
 							name
 							content
@@ -157,6 +161,33 @@ export default {
 					}
 				}
 			`
+		},
+		post: {
+			query: gql`
+				query($id: ID) {
+					post(id: $id) {
+						id
+						slug
+						status
+						title
+						html
+						markdown
+						updateAt
+						tagConnection {
+							tags {
+								id
+								name
+								description
+							}
+						}
+					}
+				}
+			`,
+			variables() {
+				return {
+					id: 3
+				};
+			}
 		}
 	}
 };

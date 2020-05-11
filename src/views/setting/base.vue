@@ -2,9 +2,22 @@
 	<Card dis-hover>
 		<p slot="title"><Icon type="ios-settings-outline" /> 基本设置</p>
 		<div style="max-width:600px">
-			<Form ref="base" :model="base" label-position="top" :rules="base">
-				<FormItem label="站点名称" prop="title">
-					<Input v-model="base.title" search enter-button="确    定" @on-search="cmtSave('title')" />
+			<Form label-position="top">
+				<FormItem label="站点名称">
+					<Input
+						search
+						enter-button="确    定"
+						v-model="s.value"
+						@on-search="updateSetting(s.id, s.key, s.value)"
+					/>
+				</FormItem>
+				<FormItem label="s.key">
+					<Input
+						search
+						enter-button="确    定"
+						v-model="s.value"
+						@on-search="updateSetting(s.id, s.key, s.value)"
+					/>
 				</FormItem>
 				<FormItem label="Logo" prop="logo_url">
 					<Input
@@ -12,49 +25,19 @@
 						readonly
 						search
 						enter-button="确    定"
-						@on-search="cmtSave('logo_url')"
+						@on-search="updateSetting(s.id, s.key, s.value)"
 					/>
-					尺寸最好为 140x140px。
+					尺寸最好为 140x140px.
 				</FormItem>
-				<FormItem label="站点描述" prop="description">
-					<Input
-						v-model="base.description"
-						search
-						enter-button="确    定"
-						@on-search="cmtSave('description')"
-					/>
-				</FormItem>
-				<FormItem label="站点地址" prop="site_url">
-					<Input v-model="base.site_url" search enter-button="确    定" @on-search="cmtSave('site_url')" />
-				</FormItem>
-				<FormItem label="Favicon" prop="favicon_url">
-					<Input
-						v-model="base.favicon_url"
-						search
-						enter-button="确    定"
-						@on-search="cmtSave('favicon_url')"
-					/>
-				</FormItem>
-				<FormItem label="关键词" prop="keywords">
-					<Input v-model="base.keywords" search enter-button="确    定" @on-search="cmtSave('keywords')" />
-				</FormItem>
-				<FormItem label="每页文章数目" prop="page_size">
-					<Slider v-model="page_size" :min="4" :max="12" show-stops @on-change="onChange"></Slider>
+				<FormItem label="每页文章数目">
+					<Slider
+						:min="5"
+						:max="20"
+						show-stops
+						v-model="pageSize"
+						@on-change="updateSetting(s.id, s.key, s.value)"
+					></Slider>
 					此数目用于指定文章每页显示的文章数目.
-				</FormItem>
-				<FormItem label="Github" prop="github_url">
-					<Input
-						v-model="base.github_url"
-						search
-						enter-button="确    定"
-						@on-search="cmtSave('github_url')"
-					/>
-				</FormItem>
-				<FormItem label="Weibo" prop="weibo_url">
-					<Input v-model="base.weibo_url" search enter-button="确    定" @on-search="cmtSave('weibo_url')" />
-				</FormItem>
-				<FormItem label="备案号" prop="miitbeian">
-					<Input v-model="base.miitbeian" search enter-button="确    定" @on-search="cmtSave('miitbeian')" />
 				</FormItem>
 			</Form>
 		</div>
@@ -68,69 +51,63 @@ import gql from "graphql-tag";
 export default {
 	data() {
 		return {
-			page_size: 2,
+			pageSize: 10,
 			base: {},
 			showLogoEdit: false,
 			saveLoading: false,
-			gqlData: "",
 			Role: [],
-			Setting: []
+			s: { id: 0, key: "", value: "" },
+			// gql
+			allSettings: { settings: [] }
 		};
 	},
+
 	methods: {
-		cmtSave(key) {
-			this.save_loading = true;
-			admOptsEdit({
-				key: key,
-				value: this.base[key]
-			}).then(resp => {
-				this.saveLoading = false;
-				if (resp.code == 200) {
-					this.$Message.success({ content: "更新成功" });
-				} else {
-					this.$Message.error({
-						content: `更新失败`,
-						duration: 3,
-						onClose() {
-							this.init();
+		updateSetting(id, key, value) {
+			this.$apollo
+				.mutate({
+					mutation: gql`
+						mutation($id: ID!, $key: String, $value: String) {
+							updateSetting(id: $id, key: $key, value: $value) {
+								id
+								key
+								value
+							}
 						}
-					});
-				}
-			});
-		},
-		onChange(val) {
-			admOptsEdit({
-				key: "page_size",
-				value: val + ""
-			}).then(resp => {
-				this.saveLoading = false;
-				if (resp.code != 200) {
-					this.$Message.error({
-						content: `更新失败,请重试`,
-						duration: 3,
-						onClose() {
-							this.init();
-						}
-					});
-				}
-			});
-		},
-		init() {
-			apiOptsBase().then(resp => {
-				if (resp.code == 200) {
-					this.page_size = Number(resp.data["page_size"], 10);
-					this.base = resp.data;
-				} else {
-					this.base = {};
-				}
-			});
-		},
-		clkLogo() {
-			this.showLogoEdit = true;
+					`,
+					variables: {
+						id: id,
+						key: key,
+						value: value
+					}
+				})
+				.then(({ data }) => {
+					this.$Message.success({ content: "设置保存成功" });
+					console.log(data);
+				})
+				.catch(error => {
+					this.$Message.warning({ content: "设置保存失败" });
+				});
 		}
 	},
-	mounted() {
-		this.init();
+
+	apollo: {
+		allSettings: {
+			query: gql`
+				query {
+					allSettings {
+						settings {
+							id
+							key
+							value
+						}
+					}
+				}
+			`,
+			result({ data, loading, networkStatus }) {
+				this.s = data.allSettings.settings[0];
+			}
+		}
 	}
 };
 </script>

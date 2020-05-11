@@ -91,7 +91,8 @@ const appRouter = [
 				meta: {
 					title: "添加文章"
 				},
-				component: () => import("@/views/article/article.vue")
+				component: () => import("@/views/article/article.vue"),
+				props: { isAdd: true, isPost: true }
 			},
 			{
 				path: "edit/:id(\\d+)",
@@ -137,32 +138,7 @@ const appRouter = [
 			}
 		]
 	},
-	{
-		path: "/cate",
-		name: "cate",
-		meta: {
-			title: "分类管理"
-		},
-		component: Layout,
-		children: [
-			{
-				path: "list",
-				meta: {
-					title: "分类列表"
-				},
-				name: "cate-list",
-				component: () => import("@/views/cate/list.vue")
-			},
-			{
-				path: "add",
-				meta: {
-					title: "添加分类"
-				},
-				name: "cate-add",
-				component: () => import("@/views/cate/add.vue")
-			}
-		]
-	},
+	// tag
 	{
 		path: "/tag",
 		name: "tag",

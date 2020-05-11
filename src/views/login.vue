@@ -1,39 +1,43 @@
-<style lang="less" scoped>
-@import "./login.less";
-</style>
 <template>
 	<div class="login" @keydown.enter="submit">
 		<div class="top">
 			<div class="header">
 				<a>
-					<img src="../assets/logo.png" class="logo" alt="logo">
 					<span class="title">欢迎登陆</span>
 				</a>
-			</div>
-			<div class="desc">
-				github.com/zxysilent/blog
 			</div>
 		</div>
 		<div class="main">
 			<Form ref="loginForm" :model="user" :rules="rules">
 				<FormItem prop="num" label="账 号">
-					<Input size="large" prefix="ios-person-outline" type="text" v-model="user.num" placeholder="请输入账号">
-					</Input>
+					<Input
+						size="large"
+						prefix="ios-person-outline"
+						type="text"
+						v-model="user.num"
+						placeholder="请输入账号"
+					/>
 				</FormItem>
 				<FormItem prop="pass" label="密 码">
-					<Input size="large" prefix="ios-lock-outline" type="password" v-model="user.pass" placeholder="请输入密码">
-					</Input>
+					<Input
+						size="large"
+						prefix="ios-lock-outline"
+						type="password"
+						v-model="user.pass"
+						placeholder="请输入密码"
+					/>
 				</FormItem>
 				<FormItem>
 					<Button size="large" @click="submit" type="primary" long>登 录</Button>
 				</FormItem>
 			</Form>
-			<p class="login-tip">首页
+			<p class="login-tip">
 				<a href="/" title="首页">
 					<Icon type="ios-send-outline" size="20" />
+					首页
 				</a>
 			</p>
-			<div class="other-login">
+			<div class="other-login" v-if="false">
 				<span>其他登录方式</span>&nbsp;
 				<a>
 					<Icon type="logo-github" />
@@ -41,21 +45,26 @@
 			</div>
 		</div>
 		<div class="footer">
-			<div class="links">
+			<div class="links" v-if="false">
 				<a>帮助</a>
 				<a>隐私</a>
 				<a>条款</a>
 			</div>
 			<div class="copyright">
-				Copyright &copy; {{new Date().getFullYear()}}&nbsp;<a target="_blank" href="https://github.com/zxysilent">github.com/zxysilent</a>&nbsp;&nbsp;<a target="_blank" href="https://blog.zxysilent.com">blog.zxysilent.com</a>
+				Copyright &copy; {{ new Date().getFullYear() }}&nbsp;
+				<a target="_blank" href="https://github.com/nediiii">
+					github.com/nediiii
+				</a>
 			</div>
 		</div>
 	</div>
 </template>
+
 <script>
 import md5 from "js-md5";
 import { apiLogin } from "@/api/auth";
 import util from "@/utils.js";
+
 export default {
 	data() {
 		return {
@@ -94,3 +103,7 @@ export default {
 	}
 };
 </script>
+
+<style lang="less" scoped>
+@import "./login.less";
+</style>

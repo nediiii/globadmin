@@ -1,42 +1,45 @@
 <template>
 	<div>
 		<Card dis-hover>
-			<Table stripe size="small" :columns="colTag" :data="dataTag"></Table>
+			<Table stripe size="small" :columns="colTag" :data="allTags.tags"></Table>
 		</Card>
 		<Modal v-model="showEdit" title="修改标签信息">
 			<Form ref="editForm" :model="editForm" label-position="top" :rules="editRules">
 				<FormItem label="标签名称" prop="name">
-					<Input v-model="editForm.name" placeholder="请填写标签名"></Input>
+					<Input v-model="editForm.name" placeholder="请填写标签名" />
 				</FormItem>
 				<FormItem label="标签介绍" prop="intro">
-					<Input v-model="editForm.intro" placeholder="请填写标签介绍"></Input>
+					<Input v-model="editForm.description" placeholder="请填写标签介绍" />
 				</FormItem>
 			</Form>
 			<div slot="footer">
 				<ButtonGroup>
-					<Button type="warning" :loading="editLoading" @click="cmtEdit">提交保存</Button>
-					<Button type="info" style="margin-left: 8px" @click="showEdit=false">取消关闭</Button>
+					<Button type="warning" :loading="editLoading" @click="updateTag">提交保存</Button>
+					<Button type="info" style="margin-left: 8px" @click="showEdit = false">取消关闭</Button>
 				</ButtonGroup>
 			</div>
 		</Modal>
 	</div>
 </template>
+
 <script>
 import { apiTagAll, admTagEdit, admTagDrop } from "@/api/tag";
+import gql from "graphql-tag";
+
 export default {
 	data() {
 		return {
 			showEdit: false,
 			editLoading: false,
-			editForm: { name: "", intro: "" },
+			editForm: { id: 0, name: "", description: "" },
 			editRules: {
 				name: [{ required: true, message: "请填写标签名", trigger: "blur", max: 64 }],
-				intro: [{ required: true, message: "请填写标签介绍", trigger: "blur", max: 64 }]
+				description: [{ required: true, message: "请填写标签介绍", trigger: "blur", max: 64 }]
 			},
 			colTag: [
 				{ type: "index", minWidth: 60, maxWidth: 100, align: "center" },
 				{ title: "标签名", minWidth: 100, maxWidth: 300, key: "name" },
-				{ title: "标签介绍", minWidth: 100, maxWidth: 300, key: "intro" },
+				{ title: "标签介绍", minWidth: 100, maxWidth: 300, key: "description" },
 				{
 					title: "Action",
 					minWidth: 100,
@@ -60,7 +63,7 @@ export default {
 									props: { confirm: true, title: "确定要删除吗？" },
 									on: {
 										"on-ok": () => {
-											this.delete(data);
+											this.deleteTag(data);
 										}
 									}
 								},
@@ -75,57 +78,98 @@ export default {
 					}
 				}
 			],
-			dataTag: []
+			allTags: { tags: [] }
 		};
 	},
+
 	methods: {
-		init() {
-			apiTagAll().then(resp => {
-				if (resp.code == 200) {
-					this.dataTag = resp.data;
-				} else {
-					this.dataTag = [];
-					this.$Message.warning("未查询到标签信息,请重试！");
-				}
-			});
-		},
-		cmtEdit() {
+		updateTag() {
 			this.$refs["editForm"].validate(valid => {
 				if (valid) {
 					this.editLoading = true;
-					admTagEdit(this.editForm).then(resp => {
-						this.editLoading = false;
-						if (resp.code == 200) {
+					this.$apollo
+						.mutate({
+							mutation: gql`
+								mutation($id: ID!, $slug: String!, $name: String!, $description: String!) {
+									updateTag(id: $id, slug: $slug, name: $name, description: $description) {
+										id
+										slug
+										name
+										description
+									}
+								}
+							`,
+							variables: {
+								id: this.editForm.id,
+								slug: this.editForm.name,
+								name: this.editForm.name,
+								description: this.editForm.description
+							}
+						})
+						.then(({ data }) => {
+							this.editLoading = false;
 							this.$Message.success({
 								content: "标签信息修改成功",
 								onClose: () => {
 									this.showEdit = false;
 								}
 							});
-						} else {
+						})
+						.catch(error => {
 							this.$Message.error({ content: `标签信息修改失败,请重试`, duration: 3 });
-						}
-					});
+						});
 				}
 			});
 		},
-		delete(data) {
-			admTagDrop(data.row.id).then(resp => {
-				if (resp.code == 200) {
-					this.$Message.success({
-						content: "删除成功",
-						onClose: () => {
-							this.dataTag.splice(data.index, 1);
+		deleteTag(data) {
+			this.$apollo
+				.mutate({
+					mutation: gql`
+						mutation($id: ID!) {
+							deleteTag(id: $id)
 						}
-					});
-				} else {
-					this.$Message.error("删除失败,请重试！");
-				}
-			});
+					`,
+					variables: {
+						id: data.row.id
+					}
+				})
+				.then(result => {
+					if (result.data.deleteTag) {
+						this.$Message.success({
+							content: "删除成功",
+							onClose: () => {
+								this.$apollo.queries.allTags.refetch();
+							}
+						});
+					} else {
+						this.$Message.error({
+							content: "删除失败,请重试！",
+							onClose: () => {
+								this.$apollo.queries.allTags.refetch();
+							}
+						});
+					}
+				});
 		}
 	},
-	mounted() {
-		this.init();
+
+	apollo: {
+		allTags: {
+			query: gql`
+				query {
+					allTags {
+						tags {
+							id
+							name
+							description
+						}
+					}
+				}
+			`,
+			error(error) {
+				this.$Message.warning("未查询到标签信息,请重试！");
+			}
+		}
 	}
 };
 </script>

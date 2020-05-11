@@ -1,6 +1,3 @@
-<style lang="less" scoped>
-@import "./layout.less";
-</style>
 <template>
 	<Layout class="layout">
 		<Sider hide-trigger :width="200" class="layout-sider" :style="{ overflow: 'hidden' }">
@@ -24,6 +21,7 @@
 						</Tooltip>
 					</div>
 				</div>
+				<hr />
 				<Menu
 					ref="menu"
 					:active-name="$route.name"
@@ -55,18 +53,6 @@
 						>
 						<MenuItem name="page-add" to="/page/add">
 							<Icon type="ios-add-circle-outline" />添加页面</MenuItem
-						>
-					</Submenu>
-					<Submenu name="cate">
-						<template slot="title">
-							<Icon type="ios-school-outline" />
-							分类管理
-						</template>
-						<MenuItem name="cate-list" to="/cate/list">
-							<Icon type="ios-list-box-outline" />分类列表</MenuItem
-						>
-						<MenuItem name="cate-add" to="/cate/add">
-							<Icon type="ios-add-circle-outline" />添加分类</MenuItem
 						>
 					</Submenu>
 					<Submenu name="tag">
@@ -109,9 +95,11 @@
 		</Content>
 	</Layout>
 </template>
+
 <script>
 import Utils from "@/utils.js";
 import { admAuth } from "@/api/auth";
+
 export default {
 	data() {
 		return {
@@ -119,11 +107,7 @@ export default {
 			user: { name: "--", num: "--" }
 		};
 	},
-	computed: {
-		// cachePage() {
-		// 	return this.$store.state.app.cachePage;
-		// }
-	},
+
 	methods: {
 		init() {
 			admAuth().then(resp => {
@@ -140,6 +124,7 @@ export default {
 			this.$router.push({ name: "login" });
 		}
 	},
+
 	updated() {
 		// 手动更新展开的子目录
 		this.$nextTick(() => {
@@ -149,6 +134,7 @@ export default {
 			}
 		});
 	},
+
 	watch: {
 		$route(to, from) {
 			// console.log("to.name=>", to.name);
@@ -165,3 +151,7 @@ export default {
 	}
 };
 </script>
+
+<style lang="less" scoped>
+@import "./layout.less";
+</style>

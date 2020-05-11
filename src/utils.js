@@ -3,7 +3,8 @@ import { Base64 } from "js-base64";
 const storage = process.env.NODE_ENV === "development" ? localStorage : sessionStorage;
 
 let utils = {};
-utils.title = function (title) {
+
+utils.title = function(title) {
 	title = title || "zadmin";
 	window.document.title = title;
 };
@@ -12,16 +13,16 @@ utils.title = function (title) {
 utils.setItem = (k, v) => {
 	storage.setItem(k, v);
 };
-utils.getItem = (k) => {
+utils.getItem = k => {
 	return storage.getItem(k);
 };
-utils.clearItem = (k) => {
+utils.clearItem = k => {
 	storage.removeItem(k);
 };
 utils.clearData = () => {
 	storage.clear();
 };
-utils.setToken = (token) => {
+utils.setToken = token => {
 	utils.setItem("bearer", token);
 };
 utils.getToken = () => {
@@ -43,7 +44,7 @@ utils.getAuth = () => {
 	}
 };
 // 不需要也可登录页面集合
-utils.noAuth = (r) => {
+utils.noAuth = r => {
 	return ["login", "errjwt", "err401", "err50x", "err404"].indexOf(r) > -1;
 };
 utils.Role = {
@@ -58,10 +59,10 @@ utils.Role = {
 		return false;
 	}
 };
-utils.Role.isSup = (rl) => {
+utils.Role.isSup = rl => {
 	return utils.Role.getRole(rl, utils.Role.RSup);
 };
-utils.Role.isAtv = (rl) => {
+utils.Role.isAtv = rl => {
 	return utils.Role.getRole(rl, utils.Role.RAtv);
 };
 // 权限路由相关

@@ -3,17 +3,17 @@
 		<Card dis-hover>
 			<Row :gutter="2">
 				<i-col span="20">
-					<Form ref="dataForm" :rules="PostRules" :model="Post">
+					<Form ref="dataForm" :rules="dataFormRules" :model="post">
 						<FormItem style="margin-bottom:15px" prop="title">
-							<Input v-model="Post.title" placeholder="请输入标题" />
+							<Input v-model="post.title" placeholder="请输入标题" />
 						</FormItem>
-						<FormItem style="margin-bottom:15px" prop="path">
+						<FormItem style="margin-bottom:15px" prop="slug">
 							<Row>
 								<i-col span="8">
 									<Input
 										type="text"
-										:disabled="isEdit"
-										v-model="Post.slug"
+										:disabled="false"
+										v-model="post.slug"
 										placeholder="请输入访问路径"
 									/>
 								</i-col>
@@ -45,11 +45,11 @@
 						></button>
 						<mavon-editor
 							ref="md"
-							@imgAdd="imgAddNew"
 							:boxShadow="false"
-							@change="change"
 							:toolbars="toolbars"
-							v-model="Post.markdown"
+							@imgAdd="imgAddNew"
+							@change="change"
+							v-model="post.markdown"
 							style="height:100%"
 						>
 						</mavon-editor>
@@ -81,7 +81,7 @@
 							</FormItem>
 							<FormItem v-if="isPost" label="标签">
 								<Select v-model="tags" multiple placeholder="请选择文章标签">
-									<Option v-for="tag in TagList.tags" :value="tag.id" :key="tag.id">{{
+									<Option v-for="tag in allTags.tags" :value="tag.id" :key="tag.id">{{
 										tag.name
 									}}</Option>
 								</Select>
@@ -103,15 +103,26 @@ import { apiTagAll } from "@/api/tag";
 import util from "@/utils.js";
 import { apiPostGet, admPostOpts, apiPostTagGet } from "@/api/post";
 import gql from "graphql-tag";
-// 通用 文章/页面 + 添加/修改
-// 减少js体积
+
 export default {
-	components: {
-		mavonEditor
+	props: {
+		isAdd: {
+			type: Boolean,
+			default: false
+		},
+		isPost: {
+			type: Boolean,
+			default: true
+		},
+		isPage: {
+			type: Boolean,
+			default: false
+		}
 	},
+
 	data() {
 		return {
-			TagList: {},
+			allTags: {},
 			cateAll: [],
 			tagAll: [],
 			draftLoading: false,
@@ -130,132 +141,32 @@ export default {
 			},
 			tags: [],
 			toolbars: toolbars,
-			PostRules: {
+			dataFormRules: {
 				title: [{ required: true, message: " ", trigger: "blur" }],
 				slug: [{ required: true, message: " ", trigger: "blur" }]
 			},
-			Post: {}
+			post: {
+				id: "",
+				slug: "",
+				title: ""
+			}
 		};
 	},
 
-	apollo: {
-		Post: {
-			query: gql`
-				query($id: ID) {
-					Post(id: $id) {
-						id
-						status
-						tags {
-							id
-							name
-						}
-						title
-						slug
-						html
-						markdown
-						update_at
-					}
-				}
-			`,
-			variables() {
-				return {
-					id: this.$route.params.id
-				};
-			},
-			result({ data, loading, networkStatus }) {
-				this.tags = data.Post.tags.map(tag => tag.id);
-			},
-			error(error) {
-				this.$Message.warning({ content: "获取Post失败" });
-			}
-		},
-		TagList: {
-			query: gql`
-				query {
-					TagList {
-						tags {
-							id
-							name
-							description
-						}
-						page_info {
-							has_previous_page
-							has_next_page
-							total
-							last_page
-							current_page
-							per_page
-						}
-					}
-				}
-			`
-		}
+	mounted() {
+		var md = this.$refs.md;
+		var toolbar_left = md.$refs.toolbar_left;
+		var diy = this.$refs.diy;
+		toolbar_left.$el.append(diy);
+	},
+
+	components: {
+		mavonEditor
 	},
 
 	methods: {
-		init() {
-			if (this.isPost) {
-				this.getCate();
-				this.getTag();
-			}
-			if (this.isEdit) {
-				this.getOne();
-			}
-			if (this.isPost && this.isEdit) {
-				apiPostTagGet(this.dataId).then(resp => {
-					if (resp.code == 200) {
-						this.tags = resp.data;
-					}
-				});
-			}
-		},
-		getCate() {
-			apiCateAll().then(resp => {
-				if (resp.code == 200) {
-					this.cateAll = resp.data;
-					if (this.isAdd) {
-						this.dataForm.cate_id = resp.data[0].id;
-					}
-				} else {
-					this.cateAll = [];
-					this.$Message.warning("未查询到分类信息,请重试！");
-				}
-			});
-		},
-		getTag() {
-			apiTagAll().then(resp => {
-				if (resp.code == 200) {
-					this.tagAll = resp.data;
-				} else {
-					this.tagAll = [];
-					this.$Message.warning("未查询到标签信息,请重试！");
-				}
-			});
-		},
-		getOne() {
-			apiPostGet(this.dataId).then(resp => {
-				if (resp.code == 200) {
-					this.dataForm = resp.data;
-				} else {
-					this.dataForm = {
-						title: "",
-						path: "",
-						summary: "",
-						cate_id: 0,
-						status: 0,
-						is_public: true,
-						allow_comment: false,
-						create_time: "",
-						content: "",
-						markdown_content: ""
-					};
-					this.$Message.warning("未查询到信息，请重试！");
-				}
-			});
-		},
 		change(value, html) {
-			// 保存 html
-			this.Post.html = html;
+			this.post.html = html;
 		},
 		clkPreview() {
 			if (!this.dataForm.id) {
@@ -299,11 +210,57 @@ export default {
 			xhr.send(formData);
 		},
 		imgAddNew(pos, $file) {
-			this.$refs.md.$img2Url(
-				pos,
-				"https://user-images.githubusercontent.com/378023/80668639-595e9e00-8add-11ea-8673-4a481cc7e2dd.png"
+			this.getFileHash($file).then(
+				// success
+				hash => {
+					console.log("test for here start");
+					this.$apollo
+						.mutate({
+							mutation: gql`
+								mutation($file: Upload!) {
+									singleUpload(file: $file) {
+										hash
+										url
+										id
+										name
+										content
+									}
+								}
+							`,
+							variables: {
+								file: $file
+							}
+						})
+						.then(({ data }) => {
+							this.$refs.md.$img2Url(pos, data.singleUpload.url);
+						})
+						.catch(error => {
+							this.$Message.warning({ content: "文件上传失败" });
+						});
+				},
+				// error
+				() => {
+					this.$Message.warning("文件Hash异常");
+				}
 			);
 		},
+
+		getFileHash(file) {
+			return new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.readAsArrayBuffer(file);
+				reader.onload = function() {
+					crypto.subtle.digest("SHA-256", this.result).then(arrayBuffer => {
+						let hashArray = Array.from(new Uint8Array(arrayBuffer));
+						let hashStr = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+						// console.log("getFileHash.sha256:", hashStr);
+						resolve(hashStr);
+					});
+				};
+				reader.onerror = error => reject(error);
+			});
+		},
+
 		// 存草稿
 		cmtDraft() {
 			this.$refs.dataForm.validate(valid => {
@@ -343,7 +300,7 @@ export default {
 		cmtDraftNew() {
 			this.$refs.dataForm.validate(valid => {
 				if (valid) {
-					if (this.Post.markdown == "") {
+					if (this.post.markdown == "") {
 						this.$Message.warning("请填写内容");
 						return;
 					}
@@ -353,25 +310,21 @@ export default {
 						.mutate({
 							mutation: gql`
 								mutation($id: ID!, $html: String, $md: String) {
-									UpdatePost(id: $id, html: $html, markdown: $md) {
+									updatePost(id: $id, html: $html, markdown: $md) {
 										id
 										status
-										tags {
-											id
-											name
-										}
 										title
 										slug
 										html
 										markdown
-										update_at
+										updateAt
 									}
 								}
 							`,
 							variables: {
-								id: this.Post.id,
-								html: this.Post.html,
-								md: this.Post.markdown
+								id: this.post.id,
+								html: this.post.html,
+								md: this.post.markdown
 							}
 						})
 						.then(data => {
@@ -437,6 +390,7 @@ export default {
 			});
 		}
 	},
+
 	computed: {
 		// 是否 post
 		isPost() {
@@ -465,11 +419,54 @@ export default {
 			return process.env.VUE_APP_SRV + "/page/";
 		}
 	},
-	mounted() {
-		var md = this.$refs.md;
-		var toolbar_left = md.$refs.toolbar_left;
-		var diy = this.$refs.diy;
-		toolbar_left.$el.append(diy);
+
+	apollo: {
+		post: {
+			query: gql`
+				query($id: ID) {
+					post(id: $id) {
+						id
+						slug
+						status
+						title
+						html
+						markdown
+						updateAt
+						tagConnection {
+							tags {
+								id
+								name
+								description
+							}
+						}
+					}
+				}
+			`,
+			variables() {
+				return {
+					id: this.$route.params.id
+				};
+			},
+			result({ data, loading, networkStatus }) {
+				this.tags = data.post.tagConnection.tags.map(tag => tag.id);
+			},
+			error(error) {
+				this.$Message.warning({ content: "获取Post失败" });
+			}
+		},
+		allTags: {
+			query: gql`
+				query {
+					allTags {
+						tags {
+							id
+							name
+							description
+						}
+					}
+				}
+			`
+		}
 	}
 };
 </script>
