@@ -4,8 +4,18 @@ const storage = process.env.NODE_ENV === "development" ? localStorage : sessionS
 
 let utils = {};
 
+/**
+ *
+ * seconds to milliseconds
+ * @param {String} second
+ * @returns {Number} milliseconds
+ */
+function s2ms(second) {
+	return second * 1000;
+}
+
 utils.title = function(title) {
-	title = title || "zadmin";
+	title = title || "Admin";
 	window.document.title = title;
 };
 
@@ -25,53 +35,67 @@ utils.clearData = () => {
 utils.setToken = token => {
 	utils.setItem("bearer", token);
 };
+
 utils.getToken = () => {
 	return utils.getItem("bearer");
+};
+utils.getClaims = () => {
+	let claims = Base64.decode(utils.getItem("bearer").split(".")[1]);
+	return JSON.parse(claims);
 };
 // 获取保存的用户信息
 utils.getAuth = () => {
 	try {
 		let token = Base64.decode(utils.getItem("bearer").split(".")[1]);
-		let auth = JSON.parse(token);
-		if (!auth.hasOwnProperty("id")) {
-			utils.removeItem("bearer");
+		let auth = JSON.parse(token); // auth对应jwt的claims
+		console.dir(auth);
+		if (!auth.hasOwnProperty("jti")) {
+			utils.clearItem("bearer");
 			location.href = "/login";
 		}
 		return auth;
 	} catch (e) {
-		utils.removeItem("bearer");
+		utils.clearItem("bearer");
 		location.href = "/login";
 	}
+};
+
+/**
+ * 将graphql返回的Date类型(时间戳字符串,单位是秒)转换成日期时间字符串
+ * @param {string} time
+ */
+utils.timeFormat = time => {
+	return new Date(s2ms(time)).toLocaleString().substr(0, 19);
 };
 // 不需要也可登录页面集合
 utils.noAuth = r => {
 	return ["login", "errjwt", "err401", "err50x", "err404"].indexOf(r) > -1;
 };
-utils.Role = {
-	RSup: 30, //超级管理员
-	RAtv: 20, //启用/禁用
-	RBas: 10, //基本权限
-	//判断指定位置权限
-	getRole: (rl, r) => {
-		if ((rl & (1 << r)) >> r == 1) {
-			return true;
-		}
-		return false;
-	}
-};
-utils.Role.isSup = rl => {
-	return utils.Role.getRole(rl, utils.Role.RSup);
-};
-utils.Role.isAtv = rl => {
-	return utils.Role.getRole(rl, utils.Role.RAtv);
-};
-// 权限路由相关
-utils.Role.allow = (role, arr) => {
-	for (let i = 0; i < arr.length; i++) {
-		if (utils.Role.getRole(role, arr[i])) {
-			return true;
-		}
-	}
-	return false;
-};
+// utils.Role = {
+// 	RSup: 30, //超级管理员
+// 	RAtv: 20, //启用/禁用
+// 	RBas: 10, //基本权限
+// 	//判断指定位置权限
+// 	getRole: (rl, r) => {
+// 		if ((rl & (1 << r)) >> r == 1) {
+// 			return true;
+// 		}
+// 		return false;
+// 	}
+// };
+// utils.Role.isSup = rl => {
+// 	return utils.Role.getRole(rl, utils.Role.RSup);
+// };
+// utils.Role.isAtv = rl => {
+// 	return utils.Role.getRole(rl, utils.Role.RAtv);
+// };
+// // 权限路由相关
+// utils.Role.allow = (role, arr) => {
+// 	for (let i = 0; i < arr.length; i++) {
+// 		if (utils.Role.getRole(role, arr[i])) {
+// 			return true;
+// 		}
+// 	}
+// 	return false;
+// };
 export default utils;

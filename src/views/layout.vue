@@ -4,7 +4,7 @@
 			<div class="sider-container">
 				<div class="sider-header ">
 					<img src="../assets/logo.png" alt="" srcset="" />
-					<div class="header-user">{{ user.name }}</div>
+					<div class="header-user">{{ username }}</div>
 					<div class="header-menu">
 						<Tooltip content="前台主页" placement="bottom">
 							<a href="/" target="_blank"> <Icon type="md-paper-plane" size="20"/></a>
@@ -97,31 +97,26 @@
 </template>
 
 <script>
-import Utils from "@/utils.js";
-import { admAuth } from "@/api/auth";
+import utils from "@/utils.js";
 
 export default {
 	data() {
 		return {
-			rkey: 6655,
-			user: { name: "--", num: "--" }
+			rkey: 6655
 		};
 	},
 
 	methods: {
-		init() {
-			admAuth().then(resp => {
-				if (resp.code == 200) {
-					this.user = resp.data;
-				}
-			});
-		},
 		logout() {
-			// this.$store.commit("logout", this);
-			// 移除 vuex
-			localStorage.clear();
-			sessionStorage.clear();
+			utils.clearData();
 			this.$router.push({ name: "login" });
+		}
+	},
+
+	computed: {
+		username() {
+			// console.log(utils.getClaims());
+			return utils.getClaims()["aud"];
 		}
 	},
 
@@ -145,9 +140,6 @@ export default {
 				this.rkey = 6655;
 			}
 		}
-	},
-	created() {
-		this.init();
 	}
 };
 </script>

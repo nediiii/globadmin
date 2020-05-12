@@ -28,12 +28,13 @@
 </template>
 <script>
 import gql from "graphql-tag";
+import utils from "@/utils.js";
 
 export default {
 	data() {
 		return {
 			currentPage: 1,
-			perPage: 6,
+			perPage: 10,
 			total: 0,
 			posts: [],
 			selectTag: 0,
@@ -75,7 +76,9 @@ export default {
 					title: "上次修改日期",
 					width: 150,
 					render: (h, data) => {
-						return h("div", new Date(data.row.updateAt * 1000).toLocaleString().substr(0, 18));
+						// utils.timeFormat(this.user.createAt);
+						// utils.timeFormat(data.row.updateAt);
+						return h("div", utils.timeFormat(data.row.updateAt));
 					}
 				},
 				{
@@ -147,6 +150,7 @@ export default {
 			}
 		};
 	},
+
 	methods: {
 		onChange(currentPage) {
 			this.currentPage = currentPage;
@@ -189,6 +193,7 @@ export default {
 				});
 		}
 	},
+
 	apollo: {
 		allPosts: {
 			query: gql`

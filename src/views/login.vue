@@ -8,22 +8,25 @@
 			</div>
 		</div>
 		<div class="main">
-			<Form ref="loginForm" :model="user" :rules="rules">
-				<FormItem prop="num" label="账 号">
+			<Form ref="loginForm" :model="loginForm" :rules="loginFormRules">
+				<FormItem prop="username" label="用户名">
 					<Input
 						size="large"
 						prefix="ios-person-outline"
+						maxlength="32"
 						type="text"
-						v-model="user.num"
-						placeholder="请输入账号"
+						v-model="loginForm.username"
+						placeholder="请输入用户名"
 					/>
 				</FormItem>
-				<FormItem prop="pass" label="密 码">
+				<FormItem prop="password" label="密 码">
 					<Input
 						size="large"
 						prefix="ios-lock-outline"
+						password
+						maxlength="64"
 						type="password"
-						v-model="user.pass"
+						v-model="loginForm.password"
 						placeholder="请输入密码"
 					/>
 				</FormItem>
@@ -61,44 +64,55 @@
 </template>
 
 <script>
-import md5 from "js-md5";
-import { apiLogin } from "@/api/auth";
+import gql from "graphql-tag";
 import util from "@/utils.js";
 
 export default {
 	data() {
 		return {
-			user: { num: "", pass: "" },
-			rules: {
-				num: [{ required: true, message: "账号不能为空", trigger: "blur" }],
-				pass: [{ required: true, message: "密码不能为空", trigger: "blur" }]
+			loginForm: { username: "", password: "" },
+			loginFormRules: {
+				username: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
+				password: [{ required: true, message: "密码不能为空", trigger: "blur" }]
 			}
 		};
 	},
 	methods: {
 		submit() {
-			let that = this;
-			that.$refs.loginForm.validate(valid => {
+			this.$refs.loginForm.validate(valid => {
 				if (valid) {
-					let data = {
-						num: that.user.num,
-						pass: md5(that.user.pass).substr(1, 30)
-					};
-					apiLogin(data).then(res => {
-						if (res.code == 200) {
-							this.$Message.success({
-								content: "登陆成功",
-								onClose: () => {
-									util.setToken(res.data);
-									that.$router.push({ name: "home" });
-								}
-							});
-						} else {
-							this.$Message.error(res.msg);
-						}
-					});
+					this.login();
 				}
 			});
+		},
+		login() {
+			this.$apollo
+				.mutate({
+					mutation: gql`
+						mutation($username: String!, $password: String!) {
+							auth(username: $username, password: $password) {
+								expireAt
+								token
+							}
+						}
+					`,
+					variables: {
+						username: this.loginForm.username,
+						password: this.loginForm.password
+					}
+				})
+				.then(({ data }) => {
+					this.$Message.success({
+						content: "登陆成功",
+						onClose: () => {
+							util.setToken(data.auth.token);
+							this.$router.push({ name: "home" });
+						}
+					});
+				})
+				.catch(error => {
+					this.$Message.error({ content: `登录验证失败,请确认账号密码后重试`, duration: 1 });
+				});
 		}
 	}
 };
