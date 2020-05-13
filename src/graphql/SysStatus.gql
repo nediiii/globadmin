@@ -1,0 +1,8 @@
+query sysInfo {
+	systemStatus {
+		Os
+		Version
+		NumCPU
+		Arch
+	}
+}

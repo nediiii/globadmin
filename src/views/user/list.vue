@@ -1,6 +1,7 @@
 <template>
 	<Table border :columns="columns7" :data="data6"></Table>
 </template>
+
 <script>
 export default {
 	data() {

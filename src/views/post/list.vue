@@ -1,6 +1,6 @@
 <template>
 	<Card dis-hover>
-		<Form inline>
+		<Form inline v-if="isPost">
 			<FormItem>
 				<Select v-model="selectTag" placeholder="请选择文章类别" style="width:200px">
 					<Option v-for="tag in allTags.tags" :value="tag.id" :key="tag.id">
@@ -15,6 +15,7 @@
 		<Table size="small" stripe :columns="cols" :data="posts" />
 		<br />
 		<Page
+			v-if="isPost"
 			:total="total"
 			:current="currentPage"
 			:page-size="perPage"
@@ -31,6 +32,16 @@ import gql from "graphql-tag";
 import utils from "@/utils.js";
 
 export default {
+	props: {
+		isPost: {
+			type: Boolean,
+			default: true
+		},
+		isPage: {
+			type: Boolean,
+			default: false
+		}
+	},
 	data() {
 		return {
 			currentPage: 1,

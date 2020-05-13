@@ -100,6 +100,7 @@ const appRouter = [
 				meta: {
 					title: "编辑文章"
 				},
+				props: { isEdit: true, isPost: true },
 				component: () => import("@/views/article/article.vue")
 			}
 		]
@@ -118,7 +119,8 @@ const appRouter = [
 					title: "页面列表"
 				},
 				name: "page-list",
-				component: () => import("@/views/page/list.vue")
+				props: { isPost: false, isPage: true },
+				component: () => import("@/views/post/list.vue")
 			},
 			{
 				path: "add",
@@ -181,33 +183,6 @@ const appRouter = [
 				},
 				name: "setting-base",
 				component: () => import("@/views/setting/base.vue")
-			},
-			{
-				path: "comment",
-				meta: {
-					title: "评论设置",
-					icon: "ios-text-outline"
-				},
-				name: "setting-comment",
-				component: () => import("@/views/setting/comment.vue")
-			},
-			{
-				path: "analytic",
-				meta: {
-					icon: "ios-pulse",
-					title: "统计设置"
-				},
-				name: "setting-analytic",
-				component: () => import("@/views/setting/analytic.vue")
-			},
-			{
-				path: "custom",
-				meta: {
-					icon: "ios-code-working",
-					title: "自 定 义"
-				},
-				name: "setting-custom",
-				component: () => import("@/views/setting/custom.vue")
 			}
 		]
 	},

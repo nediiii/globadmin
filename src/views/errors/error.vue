@@ -1,10 +1,7 @@
-<style lang="less" scoped>
-@import "./error.less";
-</style>
 <template>
 	<div class="error">
 		<div class="content">
-			<img :src="src" :alt="code">
+			<img :src="src" :alt="code" />
 			<div class="text">
 				<h4>{{ code }}</h4>
 				<h5>{{ desc }}</h5>
@@ -17,6 +14,7 @@
 		</div>
 	</div>
 </template>
+
 <script>
 export default {
 	name: "error",
@@ -59,3 +57,7 @@ export default {
 	}
 };
 </script>
+
+<style lang="less" scoped>
+@import "./error.less";
+</style>

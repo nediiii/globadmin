@@ -45,7 +45,6 @@
 </template>
 
 <script>
-import { apiOptsBase, admOptsEdit } from "@/api/opts";
 import gql from "graphql-tag";
 
 export default {

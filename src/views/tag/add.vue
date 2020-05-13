@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import { admTagAdd } from "@/api/tag";
 import gql from "graphql-tag";
 
 export default {

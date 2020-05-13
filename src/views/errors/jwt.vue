@@ -1,10 +1,7 @@
-<style lang="less" scoped>
-@import "./error.less";
-</style>
 <template>
 	<div class="error">
 		<div class="content">
-			<img src="../../assets/jwt.svg" alt="登陆检测">
+			<img src="../../assets/jwt.svg" alt="登陆检测" />
 			<div class="text">
 				<h4>jwt</h4>
 				<h5>Oh~~嘿呀要重新登陆啦~</h5>
@@ -15,6 +12,7 @@
 		</div>
 	</div>
 </template>
+
 <script>
 export default {
 	name: "errjwt",
@@ -30,3 +28,7 @@ export default {
 	}
 };
 </script>
+
+<style lang="less" scoped>
+@import "./error.less";
+</style>

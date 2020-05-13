@@ -98,10 +98,7 @@
 import { mavonEditor } from "mavon-editor";
 import "mavon-editor/dist/css/index.css";
 import toolbars from "./toolbars";
-import { apiCateAll } from "@/api/cate";
-import { apiTagAll } from "@/api/tag";
 import util from "@/utils.js";
-import { apiPostGet, admPostOpts, apiPostTagGet } from "@/api/post";
 import gql from "graphql-tag";
 
 export default {
@@ -392,25 +389,6 @@ export default {
 	},
 
 	computed: {
-		// 是否 post
-		isPost() {
-			return this.$route.name.indexOf("post") > -1;
-		},
-		// 是否编辑
-		isEdit() {
-			return this.$route.name.indexOf("edit") > -1;
-		},
-		// 是否添加
-		isAdd() {
-			return this.$route.name.indexOf("add") > -1;
-		},
-		// 数据id
-		dataId() {
-			if (this.isEdit) {
-				return parseInt(this.$route.params.id, 10);
-			}
-			return 0;
-		},
 		// 访问前缀
 		prefix() {
 			if (this.isPost) {
