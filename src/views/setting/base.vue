@@ -82,7 +82,7 @@ export default {
 				})
 				.then(({ data }) => {
 					this.$Message.success({ content: "设置保存成功" });
-					console.log(data);
+					// console.log(data);
 				})
 				.catch(error => {
 					this.$Message.warning({ content: "设置保存失败" });

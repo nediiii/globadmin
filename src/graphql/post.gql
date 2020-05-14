@@ -1,0 +1,25 @@
+query($id: ID) {
+	post(id: $id) {
+		id
+		createAt
+		slug
+		title
+		html
+		markdown
+		excerpt
+		featured
+		paged
+		status
+		image
+		metaTitle
+		metaDescription
+		commentable
+		tagConnection {
+			tags {
+				id
+				name
+				description
+			}
+		}
+	}
+}

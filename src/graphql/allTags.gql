@@ -1,0 +1,9 @@
+query {
+	allTags {
+		tags {
+			id
+			name
+			description
+		}
+	}
+}

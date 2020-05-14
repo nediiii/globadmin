@@ -97,6 +97,22 @@ export default {
 		};
 	},
 
+	mounted() {
+		let t = setInterval(() => {
+			// console.log("time");
+			if (!utils.isTokenOK()) {
+				this.$Notice.warning({
+					title: "用户超时"
+				});
+				this.logout();
+			}
+		}, 5000);
+		this.$once("hook:beforeDestroy", function() {
+			// console.log("time destroy");
+			clearInterval(t);
+		});
+	},
+
 	methods: {
 		logout() {
 			utils.clearData();

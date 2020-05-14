@@ -25,13 +25,14 @@ router.beforeEach((to, from, next) => {
 	ViewUI.LoadingBar.start();
 	Utils.title(to.meta.title);
 	// 已经登陆 去登陆地方
-	if (Utils.getToken() && to.name == "login") {
+	if (Utils.isTokenOK() && to.name == "login") {
 		Utils.title("主页");
 		next({
 			name: "home"
 		});
-	} else if (!Utils.getToken() && !Utils.noAuth(to.name)) {
-		// //没有登陆 不是去不需要权限的地方
+	} else if (!Utils.noAuth(to.name) && !Utils.isTokenOK()) {
+		//  不是去不需要权限的地方
+		// 没有token 或者 token过期
 		Utils.title("登陆");
 		next({
 			name: "login"
@@ -56,7 +57,10 @@ import { createUploadLink } from "apollo-upload-client";
 // HTTP connection to the API
 
 const httpOptions = {
-	uri: process.env.VUE_APP_GRAPHQL_HTTP || "/query"
+	uri: process.env.VUE_APP_GRAPHQL_HTTP || "/query",
+	headers: {
+		Authorization: Utils.getToken()
+	}
 };
 
 // Cache implementation

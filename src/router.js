@@ -91,8 +91,8 @@ const appRouter = [
 				meta: {
 					title: "添加文章"
 				},
-				component: () => import("@/views/article/article.vue"),
-				props: { isAdd: true, isPost: true }
+				props: { isAdd: true },
+				component: () => import("@/views/article/article.vue")
 			},
 			{
 				path: "edit/:id(\\d+)",
@@ -100,7 +100,6 @@ const appRouter = [
 				meta: {
 					title: "编辑文章"
 				},
-				props: { isEdit: true, isPost: true },
 				component: () => import("@/views/article/article.vue")
 			}
 		]
@@ -119,7 +118,7 @@ const appRouter = [
 					title: "页面列表"
 				},
 				name: "page-list",
-				props: { isPost: false, isPage: true },
+				props: { isPage: true },
 				component: () => import("@/views/post/list.vue")
 			},
 			{
@@ -128,6 +127,7 @@ const appRouter = [
 					title: "添加页面"
 				},
 				name: "page-add",
+				props: { isAdd: true, isPage: true },
 				component: () => import("@/views/article/article.vue")
 			},
 			{
@@ -136,6 +136,7 @@ const appRouter = [
 				meta: {
 					title: "编辑页面"
 				},
+				props: { isPage: true },
 				component: () => import("@/views/article/article.vue")
 			}
 		]

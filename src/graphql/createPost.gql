@@ -1,0 +1,43 @@
+mutation(
+	$slug: String!
+	$title: String!
+	$markdown: String!
+	$html: String!
+	$primaryAuthorId: ID!
+	$tags: [String!]
+	$authors: [ID!]
+	$excerpt: String
+	$featured: Boolean
+	$paged: Boolean
+	$publishedBy: ID
+	$image: String
+	$status: String
+) {
+	createPost(
+		slug: $slug
+		title: $title
+		markdown: $markdown
+		html: $html
+		primaryAuthorId: $primaryAuthorId
+		tags: $tags
+		authors: $authors
+		excerpt: $excerpt
+		featured: $featured
+		paged: $paged
+		publishedBy: $publishedBy
+		image: $image
+		status: $status
+	) {
+		id
+		slug
+		title
+		markdown
+		html
+		excerpt
+		featured
+		paged
+		publishedBy
+		image
+		status
+	}
+}

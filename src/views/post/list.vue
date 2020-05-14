@@ -2,7 +2,7 @@
 	<Card dis-hover>
 		<Form inline v-if="isPost">
 			<FormItem>
-				<Select v-model="selectTag" placeholder="请选择文章类别" style="width:200px">
+				<Select v-model="selectTag" placeholder="按tag进行过滤" style="width:200px">
 					<Option v-for="tag in allTags.tags" :value="tag.id" :key="tag.id">
 						{{ tag.name }} [{{ tag.description }}]
 					</Option>
@@ -27,6 +27,7 @@
 		/>
 	</Card>
 </template>
+
 <script>
 import gql from "graphql-tag";
 import utils from "@/utils.js";
@@ -106,7 +107,8 @@ export default {
 								on: {
 									click: () => {
 										console.log(data.row.slug);
-										window.open(process.env.VUE_APP_SRV_NEW + "/post/" + data.row.slug);
+										let prefix = process.env.VUE_APP_SRV_NEW + this.isPage ? "/post/" : "";
+										window.open(prefix + data.row.slug);
 									}
 								}
 							}),
@@ -117,7 +119,7 @@ export default {
 								on: {
 									click: () => {
 										this.$router.push({
-											name: "post-edit",
+											name: this.isPage ? "page-edit" : "post-edit",
 											params: { id: data.row.id }
 										});
 									}
@@ -201,6 +203,11 @@ export default {
 							}
 						});
 					}
+				})
+				.catch(error => {
+					console.dir(error);
+					this.$Message.error({ content: error.message.substring(8), duration: 2 });
+					this.loadingSavePass = false;
 				});
 		}
 	},
@@ -208,8 +215,8 @@ export default {
 	apollo: {
 		allPosts: {
 			query: gql`
-				query($page: Int, $perPage: Int) {
-					allPosts(page: $page, perPage: $perPage) {
+				query($page: Int, $perPage: Int, $paged: Boolean) {
+					allPosts(page: $page, perPage: $perPage, paged: $paged) {
 						pageInfo {
 							currentPage
 							perPage
@@ -232,7 +239,8 @@ export default {
 			variables() {
 				return {
 					page: this.currentPage,
-					perPage: this.perPage
+					perPage: this.perPage,
+					paged: this.isPage
 				};
 			},
 			result({ data, loading, networkStatus }) {

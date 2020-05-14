@@ -102,11 +102,13 @@ export default {
 					}
 				})
 				.then(({ data }) => {
+					util.setToken(data.auth.token);
+					util.setExpireAt(data.auth.expireAt);
 					this.$Message.success({
 						content: "登陆成功",
 						onClose: () => {
-							util.setToken(data.auth.token);
-							this.$router.push({ name: "home" });
+							// this.$router.push({ name: "home" });
+							this.$router.go(); // refresh the page to let apollo get the correct token
 						}
 					});
 				})

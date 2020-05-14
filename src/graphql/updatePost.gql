@@ -1,0 +1,27 @@
+mutation(
+	$id: ID!
+	$slug: String
+	$title: String
+	$html: String
+	$markdown: String
+	$excerpt: String
+	$image: String
+	$featured: Boolean
+	$paged: Boolean
+	$commentable: Boolean
+) {
+	updatePost(
+		id: $id
+		slug: $slug
+		title: $title
+		html: $html
+		markdown: $markdown
+		excerpt: $excerpt
+		image: $image
+		featured: $featured
+		paged: $paged
+		commentable: $commentable
+	) {
+		id
+	}
+}
