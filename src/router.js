@@ -70,6 +70,25 @@ export const errorRouter = [
 // 作为Main组件的子页面展示并且在左侧菜单显示的路由写在appRouter里
 const appRouter = [
 	{
+		path: "/user",
+		name: "user",
+		meta: {
+			title: "用户管理"
+		},
+		redirect: "/user/list",
+		component: Layout,
+		children: [
+			{
+				path: "list",
+				name: "user-list",
+				meta: {
+					title: "用户列表"
+				},
+				component: () => import("@/views/user/list.vue")
+			}
+		]
+	},
+	{
 		path: "/post",
 		name: "post",
 		meta: {

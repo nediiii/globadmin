@@ -31,6 +31,7 @@
 					accordion
 				>
 					<MenuItem name="home" to="/home"> <Icon type="ios-home-outline" /> 管理主页 </MenuItem>
+					<MenuItem name="user" to="/user"> <Icon type="ios-person-outline" /> 用户管理 </MenuItem>
 					<Submenu name="post">
 						<template slot="title">
 							<Icon type="ios-megaphone-outline" />

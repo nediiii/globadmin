@@ -90,10 +90,7 @@ export default {
 				.mutate({
 					mutation: gql`
 						mutation($username: String!, $password: String!) {
-							auth(username: $username, password: $password) {
-								expireAt
-								token
-							}
+							auth(username: $username, password: $password)
 						}
 					`,
 					variables: {
@@ -102,8 +99,7 @@ export default {
 					}
 				})
 				.then(({ data }) => {
-					util.setToken(data.auth.token);
-					util.setExpireAt(data.auth.expireAt);
+					util.setToken(data.auth);
 					this.$Message.success({
 						content: "登陆成功",
 						onClose: () => {

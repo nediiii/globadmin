@@ -36,17 +36,13 @@ utils.setToken = token => {
 	utils.setItem("bearer", token);
 };
 
-utils.setExpireAt = expireAt => {
-	utils.setItem("expireAt", expireAt);
-};
-
 /**
  * token是否已过期
  */
 utils.isExpired = () => {
 	let now = new Date();
+	let expireTime = new Date(s2ms(utils.getClaims()["exp"]));
 	// console.log(now);
-	let expireTime = new Date(s2ms(utils.getItem("expireAt")));
 	// console.log(expireTime);
 	if (now > expireTime) {
 		// console.log("已过期");
@@ -74,23 +70,6 @@ utils.getClaims = () => {
 	let claims = Base64.decode(utils.getItem("bearer").split(".")[1]);
 	return JSON.parse(claims);
 };
-
-// // 获取保存的用户信息
-// utils.getAuth = () => {
-// 	try {
-// 		let token = Base64.decode(utils.getItem("bearer").split(".")[1]);
-// 		let auth = JSON.parse(token); // auth对应jwt的claims
-// 		console.dir(auth);
-// 		if (!auth.hasOwnProperty("jti")) {
-// 			utils.clearItem("bearer");
-// 			location.href = "/login";
-// 		}
-// 		return auth;
-// 	} catch (e) {
-// 		utils.clearItem("bearer");
-// 		location.href = "/login";
-// 	}
-// };
 
 /**
  * 将graphql返回的Date类型(时间戳字符串,单位是秒)转换成日期时间字符串
