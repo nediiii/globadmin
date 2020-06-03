@@ -1,43 +1,41 @@
 mutation(
-	$slug: String!
-	$title: String!
-	$markdown: String!
-	$html: String!
-	$primaryAuthorId: ID!
-	$tags: [String!]
 	$authors: [ID!]
+	$commentable: Boolean
 	$excerpt: String
 	$featured: Boolean
-	$paged: Boolean
-	$publishedBy: ID
+	$html: String!
 	$image: String
+	$metaTitle: String
+	$metaDescription: String
+	$markdown: String!
+	$primaryAuthorId: ID!
+	$publishedBy: ID
+	$publishedAt: Date
+	$paged: Boolean
+	$slug: String!
 	$status: String
+	$tags: [ID!]
+	$title: String!
 ) {
 	createPost(
-		slug: $slug
-		title: $title
-		markdown: $markdown
-		html: $html
-		primaryAuthorId: $primaryAuthorId
-		tags: $tags
 		authors: $authors
+		commentable: $commentable
 		excerpt: $excerpt
 		featured: $featured
-		paged: $paged
-		publishedBy: $publishedBy
+		html: $html
 		image: $image
+		metaTitle: $metaTitle
+		metaDescription: $metaDescription
+		markdown: $markdown
+		primaryAuthorId: $primaryAuthorId
+		publishedBy: $publishedBy
+		publishedAt: $publishedAt
+		paged: $paged
+		slug: $slug
 		status: $status
+		tags: $tags
+		title: $title
 	) {
 		id
-		slug
-		title
-		markdown
-		html
-		excerpt
-		featured
-		paged
-		publishedBy
-		image
-		status
 	}
 }

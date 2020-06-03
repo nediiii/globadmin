@@ -272,7 +272,7 @@ export default {
 						return;
 					}
 					this.draftLoading = true;
-					this.updatePost();
+					this.updatePost(false);
 					this.draftLoading = false;
 				}
 			});
@@ -282,12 +282,12 @@ export default {
 			this.$refs.dataForm.validate(valid => {
 				if (valid) {
 					this.publishLoading = true;
-					this.updatePost();
+					this.updatePost(true);
 					this.publishLoading = false;
 				}
 			});
 		},
-		updatePost() {
+		updatePost(isPublished) {
 			this.$apollo
 				.mutate({
 					mutation: this.isAdd ? createPostGql : updatePostGql,
@@ -299,15 +299,24 @@ export default {
 						markdown: this.post.markdown,
 						excerpt: this.post.excerpt,
 						image: this.post.image,
-						commentable: this.post.commentable,
 						primaryAuthorId: util.getClaims()["jti"],
-						paged: this.isPage
+						tags: this.tags,
+						commentable: this.post.commentable,
+						paged: this.isPage,
+						status: isPublished ? "published": ""
 					}
 				})
-				.then(data => {
+				.then(result => {
 					this.$Message.success({
 						content: "更新成功"
 					});
+
+					if (this.isAdd) {
+						this.$router.push({
+							name: this.isPage ? "page-edit" : "post-edit",
+							params: { id: result.data.createPost.id }
+						});
+					}
 				})
 				.catch(error => {
 					this.$Message.error({

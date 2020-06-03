@@ -1,26 +1,42 @@
 mutation(
-	$id: ID!
-	$slug: String
-	$title: String
-	$html: String
-	$markdown: String
-	$excerpt: String
-	$image: String
-	$featured: Boolean
-	$paged: Boolean
+	$authors: [ID!]
 	$commentable: Boolean
+	$excerpt: String
+	$featured: Boolean
+	$html: String
+	$id: ID!
+	$image: String
+	$metaTitle: String
+	$metaDescription: String
+	$markdown: String
+	$primaryAuthorId: ID
+	$publishedBy: ID
+	$publishedAt: Date
+	$paged: Boolean
+	$slug: String
+	$status: String
+	$tags: [ID!]
+	$title: String
 ) {
 	updatePost(
-		id: $id
-		slug: $slug
-		title: $title
-		html: $html
-		markdown: $markdown
-		excerpt: $excerpt
-		image: $image
-		featured: $featured
-		paged: $paged
+		authors: $authors
 		commentable: $commentable
+		excerpt: $excerpt
+		featured: $featured
+		html: $html
+		id: $id
+		image: $image
+		metaTitle: $metaTitle
+		metaDescription: $metaDescription
+		markdown: $markdown
+		primaryAuthorId: $primaryAuthorId
+		publishedBy: $publishedBy
+		publishedAt: $publishedAt
+		paged: $paged
+		slug: $slug
+		status: $status
+		tags: $tags
+		title: $title
 	) {
 		id
 	}
